@@ -23,8 +23,7 @@ int main() {
 
     // IMPORTANTE: Como ainda não implementamos a função mymemory_cleanup(),
     // vamos dar o free() manualmente aqui no main apenas para o teste passar no Valgrind.
-    free(gerenciador->pool);
-    free(gerenciador);
+    mymemory_free(gerenciador, NULL); // Passa NULL para evitar tentar liberar um bloco específico
     
     return 0;
 }

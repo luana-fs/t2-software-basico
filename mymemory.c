@@ -27,3 +27,44 @@ mymemory_t* mymemory_init(size_t size) {
 
     return manager;
 }
+
+// void mymemory free(mymemory t *memory, void *ptr): Libera a alocação apontada por ptr. 
+// Se ptr nao for uma alocacão válida, a função não deve fazer nada.
+void mymemory_free(mymemory_t *memory, void *ptr) {
+    if (memory == NULL) {
+        return;
+    }
+    
+    // Se ptr nao for uma alocacão válida, a função não deve fazer nada.
+    if (ptr == NULL) {
+        return;
+    }
+
+    // cria um ponteiro current do tipo allocation_t e inicia ele apontando para o início da lista de alocações (head)
+    allocation_t *current = memory->head;
+    allocation_t *previous = NULL; // Ponteiro para rastrear o nó anterior, útil para remoção da lista
+
+    // primeiro liberaa casa nó de alocação
+    while (current != NULL) {
+        if (current->start == ptr) {
+            // Encontrou o bloco a ser liberado
+
+            // se for o primeiro da lista, 
+            if(previous == NULL) {
+                // O bloco a ser liberado é o primeiro da lista, precisa atualizar o head para o próx nó na estrutura da memória
+                memory->head = current->next; // Atualiza o head para o próximo nó
+            } else {
+                // O bloco a ser liberado está no meio ou no final da lista
+                previous->next = current->next; // Pula o nó atual
+            }
+            
+            // current->is_free = 1; // Marca o bloco como livre
+            free(current); // Libera a estrutura de controle do bloco alocado;
+            
+            return;
+        }
+        // precisa atualizar pra nao ficar rpeso pra sempre no if
+        previous = current;
+        current = current->next;
+    }
+}
