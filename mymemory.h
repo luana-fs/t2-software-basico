@@ -5,13 +5,13 @@
 
 typedef struct allocation {
     void *start;
-    size_t size;
+    size_t size; // tamanho em bytes do bloco alocado
     struct allocation *next;
 } allocation_t;
 
 typedef struct {
     void *pool; // ponteiro para o bloco de memória real
-    size_t total_size;
+    size_t total_size; // tamanho em bytes do bloco alocado
     allocation_t *head;
 } mymemory_t;
 

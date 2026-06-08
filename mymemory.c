@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "mymemory.h"
 
+// aluga um blocao de memória do pool para o usuário, se houver espaço suficiente, 
+// pra então precisa procurar um espaço livre no pool e alocar um bloco menor allocation_t de memória para o usuário
 mymemory_t* mymemory_init(size_t size) {
     // 1. Aloca espaço para apenas para a estrutura de controle mymemory_t, tamanho muito pequeno
     // além de alocar faz o parse para memory_t
@@ -28,8 +30,10 @@ mymemory_t* mymemory_init(size_t size) {
     return manager;
 }
 
+
 // void mymemory free(mymemory t *memory, void *ptr): Libera a alocação apontada por ptr. 
 // Se ptr nao for uma alocacão válida, a função não deve fazer nada.
+// recebe o pool de memória e o ponteiro para o bloco a ser liberado, e então precisa procurar esse bloco na lista de alocações para remover
 void mymemory_free(mymemory_t *memory, void *ptr) {
     if (memory == NULL) {
         return;
@@ -63,8 +67,37 @@ void mymemory_free(mymemory_t *memory, void *ptr) {
             
             return;
         }
-        // precisa atualizar pra nao ficar rpeso pra sempre no if
+        // precisa atualizar pra prosseguir com a iteração
         previous = current;
         current = current->next;
     }
+}
+
+// void mymemory cleanup(mymemory t *memory): Libera todos os recursos (incluindo todas as aloca¸c˜oes e o bloco de mem´oria total).
+void mymemory_cleanup(mymemory_t *memory) {
+    if (memory == NULL) {
+        return;
+    }
+
+    // limpa lista encadeada
+    allocation_t *current = memory->head;
+
+    while (current != NULL) {
+        // salvar o endereço de next antes de dar free e perder a referencia
+        allocation_t *next = current->next;
+
+        // libera o bloco de alocação atual
+        free(current);
+
+        // atualiza o current para o next que foi salvo antetiormente
+        current = next;
+    }
+
+    // Libera o pool de memória
+    if (memory->pool != NULL) {
+        free(memory->pool);
+    }
+
+    // Libera a estrutura de controle
+    free(memory);
 }
