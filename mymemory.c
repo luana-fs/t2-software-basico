@@ -57,7 +57,7 @@ void* mymemory_alloc(mymemory_t *memory, size_t size) {
             // CASO 3: O início está ocupado. Vamos procurar buracos ENTRE os blocos.
             while (curr != NULL) {
                 // current_end é o byte exato onde o bloco atual termina
-                size_t current_end = (size_t)curr->start + curr->size;
+                size_t current_end = (size_t)curr->start + curr->size; //lembrando que não precisamos fazer o type casting no curr->size pois size já é declarado na struct (mymemory.h) como size_t, não como ponteiro.
                 
               
                 // Variável para guardar onde o próximo bloco começa
