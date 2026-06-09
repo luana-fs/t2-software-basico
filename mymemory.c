@@ -101,3 +101,48 @@ void mymemory_cleanup(mymemory_t *memory) {
     // Libera a estrutura de controle
     free(memory);
 }
+
+
+void mymemory_stats(mymemory_t *memory) {
+    if (memory == NULL) {
+        return;
+    }
+
+    int total_allocations = 0;
+    size_t total_allocated_memory = 0; // Inicialmente, toda a memória está livre
+    size_t max_free_blocks = 0;
+    int free_fragments = 0;
+
+    char *current_pool_addr = (char *)memory->pool;
+    char *pool_end = current_pool_addr + memory->total_size;
+    
+    // bloco inicial
+    allocation_t *current = memory->head;
+
+    while (current != NULL) {
+        // soma um bloco
+       total_allocations++;
+       // soma o size em bytes de cada bloco
+       total_allocated_memory += current->size; // Subtrai o tamanho do bloco al
+    
+        // verifica se há gap dem branco do inicio do bloco head até o inicio da memoria
+        char *start_addr = (char *)current->start;
+        size_t gap = start_addr - current_pool_addr;
+
+        if (gap > 0) {
+            free_fragments++; // Achou um fragmento de memória livre [cite: 44]
+            if (gap > max_free_blocks) {
+                max_free_blocks = gap; // Atualiza o maior bloco [cite: 43]
+            }
+        }
+
+        // pula o ponteiro para o fim do bloco atual
+        current_pool_addr = start_addr + current->size;
+
+        current = current->next;
+    }
+
+    printf("Total Memory: %zu bytes\n", memory->total_size);
+    printf("Allocated Memory: %zu bytes\n", total_allocations);
+    printf("Free Memory: %zu bytes\n",  total_allocated_memory);
+}
