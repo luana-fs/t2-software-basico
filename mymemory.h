@@ -7,7 +7,7 @@
 typedef struct allocation {
     void *start;
     size_t size; // tamanho em bytes do bloco alocado
-    struct allocation *next;
+    struct allocation *next; //por estarmos lidando com lista encadeada, guardamos o endereço do proximo nó no ponteiro next, se tentarmos percorrer somando 1 como em um array, isso gerará um erro de Segmentação, pois a proxima não vai estar necessariamente na posição seguinte a atual;
 } allocation_t;
 
 // MEMÓRIA

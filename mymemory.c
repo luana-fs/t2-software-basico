@@ -236,3 +236,24 @@ void mymemory_stats(mymemory_t *memory) {
     printf("Allocated Memory: %zu bytes\n", total_allocations);
     printf("Free Memory: %zu bytes\n",  total_allocated_memory);
 }
+
+// Exibe os blocos ocupados
+void mymemory_display(mymemory_t *memory) {
+    if (!memory) return; //caso não tenha nada em memoria ele simplesmente não executa o método
+    
+    printf("\n--- Mapa de Alocacoes ---\n");
+    allocation_t *curr = memory->head; //nó current/aux para percorrer a lista encadeada
+    int i = 1;
+    
+    // Percorre a lista exibindo informações de cada nó
+    while (curr != NULL) {
+        // Calcula o offset: a diferença entre o início real do pool e o início deste bloco.
+        size_t offset = (size_t)curr->start - (size_t)memory->pool; // Isso nos dá uma coordenada começando em "0".
+        
+        printf("Bloco %d: Inicio no byte %zu | Tamanho: %zu bytes\n", i, offset, curr->size);
+        curr = curr->next; //percorre a lista
+        i++;
+    }
+    if (i == 1) printf("Nenhuma memoria alocada.\n"); //se o while for false e o i continuar = 1 -> não tem nada alocado em memória
+    printf("-------------------------\n");
+}
