@@ -3,33 +3,76 @@
 #include "mymemory.h"
 
 int main() {
+    size_t pool_size;
 
-    mymemory_t *gerenciador = mymemory_init(1024);
+    printf("Digite o tamanho do pool em bytes: ");
+    scanf("%zu", &pool_size);
+
+    mymemory_t *gerenciador = mymemory_init(pool_size);
 
     if (gerenciador == NULL) {
         printf("Erro ao criar gerenciador.\n");
         return 1;
     }
 
-    printf("Pool criado com sucesso.\n");
+    printf("Pool de %zu bytes criado com sucesso.\n", pool_size);
 
-    void *a = mymemory_alloc(gerenciador, 100);
-    void *b = mymemory_alloc(gerenciador, 200);
-    void *c = mymemory_alloc(gerenciador, 50);
+    int opcao = -1;
 
-    mymemory_display(gerenciador);
+    while (opcao != 0) {
+        printf("\n--- Menu ---\n");
+        printf("1. Alocar bloco\n");
+        printf("2. Liberar bloco\n");
+        printf("3. Exibir alocacoes\n");
+        printf("4. Exibir estatisticas\n");
+        printf("0. Sair\n");
+        printf("Escolha: ");
+        scanf("%d", &opcao);
 
-    printf("\nLiberando bloco B...\n");
+        if (opcao == 1) {
+            size_t size;
 
-    mymemory_free(gerenciador, b);
+            printf("Digite o tamanho do bloco: ");
+            scanf("%zu", &size);
 
-    mymemory_display(gerenciador);
+            void *ptr = mymemory_alloc(gerenciador, size);
 
-    printf("\nEstatisticas:\n");
+            if (ptr == NULL) {
+                printf("Falha ao alocar %zu bytes.\n", size);
+            } else {
+                size_t offset = (size_t)ptr - (size_t)gerenciador->pool;
+                printf("Bloco alocado com sucesso no byte %zu.\n", offset);
+            }
 
-    mymemory_stats(gerenciador);
+        } else if (opcao == 2) {
+            size_t offset;
+
+            printf("Digite o byte inicial do bloco a liberar: ");
+            scanf("%zu", &offset);
+
+            void *ptr = (char *)gerenciador->pool + offset;
+
+            mymemory_free(gerenciador, ptr);
+
+            printf("Tentativa de liberacao realizada.\n");
+
+        } else if (opcao == 3) {
+            mymemory_display(gerenciador);
+
+        } else if (opcao == 4) {
+            mymemory_stats(gerenciador);
+
+        } else if (opcao == 0) {
+            printf("Encerrando...\n");
+
+        } else {
+            printf("Opcao invalida.\n");
+        }
+    }
 
     mymemory_cleanup(gerenciador);
+
+    printf("Recursos liberados com sucesso.\n");
 
     return 0;
 }

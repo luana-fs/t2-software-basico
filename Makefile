@@ -1,7 +1,10 @@
 # Nome do compilador
 CC = gcc
 
-# Flags de compilação (avisos e debug para o Valgrind)
+# Flags de compilação
+# -Wall   : avisos importantes
+# -Wextra : avisos adicionais
+# -g      : informações de debug
 CFLAGS = -Wall -Wextra -g
 
 # Nome do executável final
@@ -10,21 +13,21 @@ TARGET = my-lib
 # Arquivos fonte
 SRCS = mymemory.c main.c
 
-# Regra padrão: executada ao digitar apenas "make"
+# Regra padrão
 all: $(TARGET)
 
-# Regra para compilar e gerar o executável
+# Compilação
 $(TARGET): $(SRCS)
 	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET)
 
-# Regra para rodar o programa normalmente
+# Execução
 run: $(TARGET)
 	./$(TARGET)
 
-# Regra para rodar com o Valgrind (verificação de memory leaks)
+# Verificação com Valgrind (Linux)
 valgrind: $(TARGET)
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(TARGET)
 
-# Regra para limpar o executável gerado
+# Limpeza
 clean:
 	rm -f $(TARGET)
