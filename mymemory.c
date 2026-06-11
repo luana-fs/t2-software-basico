@@ -194,47 +194,92 @@ void mymemory_cleanup(mymemory_t *memory) {
 
 
 void mymemory_stats(mymemory_t *memory) {
+
+    // Protecao: se o gerenciador nao existe, nao ha nada pra analisar
     if (memory == NULL) {
         return;
     }
 
-    int total_allocations = 0;
-    size_t total_allocated_memory = 0; // Inicialmente, toda a memória está livre
-    size_t max_free_blocks = 0;
-    int free_fragments = 0;
+    int total_allocations = 0;          // quantidade de blocos alocados
+    size_t total_allocated_memory = 0;  // soma dos bytes ocupados
+    size_t max_free_block = 0;          // maior espaco livre continuo encontrado
+    int free_fragments = 0;             // quantidade de regioes livres (fragmentacao)
 
+    // Ponteiro para acompanhar onde comeca a proxima regiao livre
+    // Inicialmente, comeca no inicio do pool
     char *current_pool_addr = (char *)memory->pool;
+
+    // Endereco do ultimo byte do pool
     char *pool_end = current_pool_addr + memory->total_size;
-    
-    // bloco inicial
+
+    // Começamos percorrendo a lista de blocos ocupados
     allocation_t *current = memory->head;
 
     while (current != NULL) {
-        // soma um bloco
-       total_allocations++;
-       // soma o size em bytes de cada bloco
-       total_allocated_memory += current->size; // Subtrai o tamanho do bloco al
-    
-        // verifica se há gap dem branco do inicio do bloco head até o inicio da memoria
+
+        // Conta uma alocacao
+        total_allocations++;
+
+        // Soma o tamanho deste bloco a memoria ocupada total
+        total_allocated_memory += current->size;
+
+        // Endereco onde o bloco atual começa
         char *start_addr = (char *)current->start;
+
+        // Calcula o espaco livre entre:
+        // - o fim do bloco anterior
+        // - e o início deste bloco
         size_t gap = start_addr - current_pool_addr;
 
+        // Se existe espaço livre, encontramos um fragmento
         if (gap > 0) {
-            free_fragments++; // Achou um fragmento de memória livre [cite: 44]
-            if (gap > max_free_blocks) {
-                max_free_blocks = gap; // Atualiza o maior bloco [cite: 43]
+
+            free_fragments++;
+
+            // Atualiza o maior bloco livre encontrado ate agora
+            if (gap > max_free_block) {
+                max_free_block = gap;
             }
         }
 
-        // pula o ponteiro para o fim do bloco atual
+        // Move o ponteiro para o fim do bloco atual
+        // Assim, na proxima iteracao, conseguiremos medir o proximo gap
         current_pool_addr = start_addr + current->size;
 
         current = current->next;
     }
 
+    size_t final_gap = pool_end - current_pool_addr;
+
+    if (final_gap > 0) {
+
+        free_fragments++;
+
+        if (final_gap > max_free_block) {
+            max_free_block = final_gap;
+        }
+    }
+
+    // Calcula a memoria livre total
+    size_t free_memory =
+        memory->total_size - total_allocated_memory;
+
     printf("Total Memory: %zu bytes\n", memory->total_size);
-    printf("Allocated Memory: %zu bytes\n", total_allocations);
-    printf("Free Memory: %zu bytes\n",  total_allocated_memory);
+
+    printf("Total Allocations: %d\n",
+           total_allocations);
+
+    printf("Allocated Memory: %zu bytes\n",
+           total_allocated_memory);
+
+    printf("Free Memory: %zu bytes\n",
+           free_memory);
+
+    printf("Largest Free Block: %zu bytes\n",
+           max_free_block);
+
+    printf("Free Fragments: %d\n",
+           free_fragments);
 }
 
 // Exibe os blocos ocupados

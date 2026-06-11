@@ -3,27 +3,33 @@
 #include "mymemory.h"
 
 int main() {
-    printf("--- Iniciando teste do mymemory_init ---\n");
 
-    // Tenta alocar um pool de 1024 bytes (1 KB)
-    size_t tamanho_desejado = 1024;
-    mymemory_t *gerenciador = mymemory_init(tamanho_desejado);
+    mymemory_t *gerenciador = mymemory_init(1024);
 
-    // Verifica se a alocação falhou (o SO negou a memória)
     if (gerenciador == NULL) {
-        printf("ERRO: Falha ao inicializar o gerenciador de memória.\n");
+        printf("Erro ao criar gerenciador.\n");
         return 1;
     }
 
-    // Imprime os resultados para confirmar que tudo está no lugar
-    printf("- Endereço da prancheta (gerenciador): %p\n", (void*)gerenciador);
-    printf("- Endereço do pool gigante (pool):     %p\n", gerenciador->pool);
-    printf("- Tamanho total registrado:            %zu bytes\n", gerenciador->total_size);
-    printf("- Início da lista (head):              %p\n", (void*)gerenciador->head);
+    printf("Pool criado com sucesso.\n");
 
-    // IMPORTANTE: Como ainda não implementamos a função mymemory_cleanup(),
-    // vamos dar o free() manualmente aqui no main apenas para o teste passar no Valgrind.
-    mymemory_free(gerenciador, NULL); // Passa NULL para evitar tentar liberar um bloco específico
-    
+    void *a = mymemory_alloc(gerenciador, 100);
+    void *b = mymemory_alloc(gerenciador, 200);
+    void *c = mymemory_alloc(gerenciador, 50);
+
+    mymemory_display(gerenciador);
+
+    printf("\nLiberando bloco B...\n");
+
+    mymemory_free(gerenciador, b);
+
+    mymemory_display(gerenciador);
+
+    printf("\nEstatisticas:\n");
+
+    mymemory_stats(gerenciador);
+
+    mymemory_cleanup(gerenciador);
+
     return 0;
 }
